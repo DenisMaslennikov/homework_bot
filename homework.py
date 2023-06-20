@@ -3,7 +3,6 @@ import os
 import sys
 import time
 from http import HTTPStatus
-from json import JSONDecodeError
 from logging.handlers import RotatingFileHandler
 
 import requests
@@ -42,7 +41,7 @@ logger.addHandler(handler)
 
 
 def check_tokens():
-    """Проверка токена и chat id"""
+    """Проверка токена и chat id."""
     try:
         if not TELEGRAM_TOKEN:
             raise InvalidTokenException('Не найден токен телеграма')
@@ -61,7 +60,7 @@ def check_tokens():
 
 
 def send_message(bot=None, message=''):
-    """Отправка сообщения в телеграмм"""
+    """Отправка сообщения в телеграм."""
     if not bot:
         bot = telegram.Bot(token=TELEGRAM_TOKEN)
 
@@ -73,7 +72,7 @@ def send_message(bot=None, message=''):
 
 
 def get_api_answer(timestamp):
-    """Получение ответа от API Яндекс практикума"""
+    """Получение ответа от API Яндекс практикума."""
     params = {'from_date': timestamp}
     logger.debug(f'Отправка запроса к API Яндекс практикума {ENDPOINT}')
     try:
@@ -87,14 +86,12 @@ def get_api_answer(timestamp):
 
 
 def check_response(response):
-    """Проверка ответа API Яндекса на соответствие ожидаемому"""
+    """Проверка ответа API Яндекса на соответствие ожидаемому."""
     logger.debug('Проверяем ответ API')
 
     if not isinstance(response, dict):
         raise TypeError('Полученный ответ не является словарем')
     if not response.get('homeworks'):
-        # Казалось бы достаточно вызвать response['homeworks'] и будет
-        # KeyError, но тесты такой вариант не пропустили
         raise KeyError('В словаре ответа нет ключа homeworks')
 
     if not isinstance(response['homeworks'], list):
@@ -110,7 +107,7 @@ def check_response(response):
 
 
 def parse_status(homework):
-    """Извлечение статуса домашней работы"""
+    """Извлечение статуса домашней работы."""
     logger.debug('Извлекаем статус домашней работы')
     if not homework.get('homework_name'):
         raise KeyError('Ключ "homework_name" отсутствует в словаре домашки')
@@ -137,36 +134,10 @@ def main():
             for homework in response['homeworks']:
                 status = parse_status(homework)
                 send_message(bot, status)
-        # Изначально вся обработка исключений была непосредственно в функциях,
-        # но тестам такой подход не понравился. Пришлось все в кучу стащить.
-        except TypeError as error:
-            logger.error(error, exc_info=True)
-            send_message(message=f'Получен неожиданный ответ от API\n{error}')
-        except KeyError as error:
-            logger.error(error, exc_info=True)
-            send_message(message=f'Ошибка ключа в словаре\n{error}')
-            return False
-        except requests.ConnectTimeout as error:
-            logger.error(error, exc_info=True)
-            send_message(message=(
-                f'Ошибка подключения к API Яндекса, превышено время ожидания\n'
-                f'{error}'
-            ))
-        except requests.ConnectionError as error:
-            logger.error(error, exc_info=True)
-            send_message(message=f'Ошибка подключения к API Яндекса\n{error}')
-        except JSONDecodeError as error:
-            logger.error(error, exc_info=True)
-            send_message(message=f'Ошибка декодирования JSON\n{error}')
-        except APIUnavailable as error:
-            logger.error(error, exc_info=True)
-            send_message(message=(
-                f'Ошибка API получен ответ отличный от 200OK\n{error}'
-            ))
         except Exception as error:
             message = f'Сбой в работе программы: {error}'
             logger.error(error, exc_info=True)
-            send_message(message=message)
+            send_message(bot, message)
 
         time.sleep(RETRY_PERIOD)
 
