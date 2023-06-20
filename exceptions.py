@@ -11,8 +11,3 @@ class InvalidChatIDException(Exception):
 class APIUnavailable(Exception):
     """Вызывается если статус ответа сервера API отличается от 200OK"""
     pass
-
-
-class WrongURL(Exception):
-    """Вызывается если передано некорректное значение вместо URL"""
-    pass

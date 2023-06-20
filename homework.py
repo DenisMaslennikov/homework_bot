@@ -11,7 +11,7 @@ import telegram
 from dotenv import load_dotenv
 
 from exceptions import (APIUnavailable, InvalidChatIDException,
-                        InvalidTokenException, WrongURL)
+                        InvalidTokenException)
 
 load_dotenv()
 
@@ -93,8 +93,8 @@ def check_response(response):
     if not isinstance(response, dict):
         raise TypeError('Полученный ответ не является словарем')
     if not response.get('homeworks'):
-        # Казалось бы достаточно вызвать response['homeworks'] и будет KeyError
-        # но тесты такой вариант не пропустили
+        # Казалось бы достаточно вызвать response['homeworks'] и будет
+        # KeyError, но тесты такой вариант не пропустили
         raise KeyError('В словаре ответа нет ключа homeworks')
 
     if not isinstance(response['homeworks'], list):
@@ -137,7 +137,7 @@ def main():
             for homework in response['homeworks']:
                 status = parse_status(homework)
                 send_message(bot, status)
-        # Изначально вся обработка исключений была непосредственно в функциях
+        # Изначально вся обработка исключений была непосредственно в функциях,
         # но тестам такой подход не понравился. Пришлось все в кучу стащить.
         except TypeError as error:
             logger.error(error, exc_info=True)
