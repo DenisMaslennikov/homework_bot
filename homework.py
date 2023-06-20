@@ -1,8 +1,8 @@
 import logging
 import os
-from http import HTTPStatus
 import sys
 import time
+from http import HTTPStatus
 from json import JSONDecodeError
 from logging.handlers import RotatingFileHandler
 
@@ -10,7 +10,8 @@ import requests
 import telegram
 from dotenv import load_dotenv
 
-from exceptions import InvalidChatIDException, InvalidTokenException, APIUnavailable, WrongURL
+from exceptions import (APIUnavailable, InvalidChatIDException,
+                        InvalidTokenException, WrongURL)
 
 load_dotenv()
 
@@ -85,11 +86,6 @@ def get_api_answer(timestamp):
         send_message(message=f'Ошибка при запросе к API \n{error}')
 
 
-
-
-
-
-
 def check_response(response):
     """Проверка ответа API Яндекса на соответствие ожидаемому"""
     logger.debug('Проверяем ответ API')
@@ -104,15 +100,13 @@ def check_response(response):
     if not isinstance(response['homeworks'], list):
         raise TypeError(
             'В словаре ответа по ключу homeworks не найден список с '
-              'домашними работами'
+            'домашними работами'
         )
     if not isinstance(response['current_date'], int):
         raise TypeError(
-        'В словаре ответа по ключу current_date не найдено время в '
+            'В словаре ответа по ключу current_date не найдено время в '
             'формате UNIX'
         )
-
-
 
 
 def parse_status(homework):
@@ -129,12 +123,11 @@ def parse_status(homework):
     return f'Изменился статус проверки работы "{homework_name}". {verdict}'
 
 
-
 def main():
     """Основная логика работы бота."""
     check_tokens()
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
-    timestamp = 0 # int(time.time())
+    timestamp = int(time.time())
 
     while True:
         try:
@@ -175,10 +168,7 @@ def main():
             logger.error(error, exc_info=True)
             send_message(message=message)
 
-
         time.sleep(RETRY_PERIOD)
-
-
 
 
 if __name__ == '__main__':
