@@ -11,3 +11,8 @@ class InvalidChatIDException(Exception):
 class APIUnavailable(Exception):
     """Вызывается если статус ответа сервера API отличается от 200OK"""
     pass
+
+
+class RequestsError(Exception):
+    """Вызывается если requests падают с ошибкой"""
+    pass
