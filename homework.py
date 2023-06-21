@@ -39,7 +39,7 @@ HOMEWORK_VERDICTS = {
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 handler = RotatingFileHandler(
-    BASE_DIR / 'logs/bot.log', maxBytes=MAX_LOG_SIZE_BYTES, backupCount=3
+    BASE_DIR / 'bot.log', maxBytes=MAX_LOG_SIZE_BYTES, backupCount=3
 )
 formatter = logging.Formatter(
     '%(asctime)s - %(name)s - %(levelname)s - %(funcName)s - %(lineno)d - '
