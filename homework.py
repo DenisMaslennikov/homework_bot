@@ -96,7 +96,10 @@ def get_api_answer(timestamp):
     try:
         response = requests.get(ENDPOINT, headers=HEADERS, params=params)
         if response.status_code != HTTPStatus.OK:
-            raise APIUnavailable('От API получен ответ отличный от 200 OK')
+            raise APIUnavailable(
+                f'От API получен {response.status_code} ответ вместо '
+                f'ожидаемого 200 OK'
+            )
         return response.json()
     except requests.RequestException as error:
         raise RequestsError from error
