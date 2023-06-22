@@ -2,6 +2,7 @@ import logging
 import os
 import sys
 import time
+from datetime import timedelta
 from http import HTTPStatus
 from logging import StreamHandler
 from logging.handlers import RotatingFileHandler
@@ -24,7 +25,7 @@ TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
 
 RETRY_PERIOD = 600
 MAX_LOG_SIZE_BYTES = 10000000
-
+ERROR_MESSAGE_TIMEOUT_SECONDS = 3600
 
 ENDPOINT = 'https://practicum.yandex.ru/api/user_api/homework_statuses/'
 HEADERS = {'Authorization': f'OAuth {PRACTICUM_TOKEN}'}
@@ -51,7 +52,7 @@ stream_handler = StreamHandler()
 stream_handler.setFormatter(formatter)
 logger.addHandler(stream_handler)
 
-error_list = []
+errors = {}
 
 
 def check_tokens():
@@ -96,7 +97,7 @@ def get_api_answer(timestamp):
     try:
         response = requests.get(ENDPOINT, headers=HEADERS, params=params)
         if response.status_code != HTTPStatus.OK:
-            raise APIUnavailable('От API получен ответ отличный от 200OK')
+            raise APIUnavailable('От API получен ответ отличный от 200 OK')
         return response.json()
     except requests.RequestException as error:
         raise RequestsError from error
@@ -158,8 +159,10 @@ def main():
         except Exception as error:
             message = f'Сбой в работе программы: {error}'
             logger.error(error, exc_info=True)
-            if str(error) not in error_list:
-                error_list.append(str(error))
+            if (errors.get(str(error), 0) < int(time.time())):
+                errors[str(error)] = (
+                    int(time.time()) + ERROR_MESSAGE_TIMEOUT_SECONDS
+                )
                 send_message(bot, message)
         finally:
             time.sleep(RETRY_PERIOD)
