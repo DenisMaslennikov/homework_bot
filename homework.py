@@ -2,7 +2,6 @@ import logging
 import os
 import sys
 import time
-from datetime import timedelta
 from http import HTTPStatus
 from logging import StreamHandler
 from logging.handlers import RotatingFileHandler
