@@ -161,7 +161,7 @@ def main():
         except Exception as error:
             message = f'Сбой в работе программы: {error}'
             logger.error(error, exc_info=True)
-            if (errors.get(str(error), 0) < int(time.time())):
+            if errors.get(str(error), 0) < int(time.time()):
                 errors[str(error)] = (
                     int(time.time()) + ERROR_MESSAGE_TIMEOUT_SECONDS
                 )
